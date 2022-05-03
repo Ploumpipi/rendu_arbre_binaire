@@ -44,6 +44,8 @@ void CTree::addNode(int valeur)
 	nouveau->valeur = valeur;
 	nouveau->fils_droite = NULL;
 	nouveau->fils_gauche = NULL;
+	nouveau->valeurDroite = NULL;
+	nouveau->valeurGauche = NULL;
 
 	//On place à la bonne place
 	placer(nouveau);
@@ -107,7 +109,18 @@ void CTree::afficher(Node* racine)
 		afficher(racine->fils_gauche);
 	if (racine->fils_droite)
 		afficher(racine->fils_droite);
-	cout << racine->valeur << endl;
-	cout << racine->valeur << " a pour fils gauche : " << racine->valeurGauche << endl;
+	//cout << racine->valeur << endl;
+	if (racine->valeurGauche == NULL && racine->valeurDroite == NULL) {
+		cout << racine->valeur << " n'a pas de fis gauche et n'a pas de fils droit" << endl;
+	}
+	else if (racine->valeurDroite == NULL) {
+		cout << racine->valeur << " a pour fils gauche : " << racine->valeurGauche << " et n'a pas de fils droit" << endl;
+	}
+	else if (racine->valeurGauche == NULL) {
+		cout << racine->valeur << " a pour fils droit : " << racine->valeurDroite << " et n'a pas de fils gauche" << endl;
+
+	}
+	else
+		cout << racine->valeur << " a pour fils gauche : " << racine->valeurGauche << " et a pour fils droit : " << racine->valeurDroite << endl;
 
 }

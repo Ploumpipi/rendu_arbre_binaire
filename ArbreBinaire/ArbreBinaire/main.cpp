@@ -14,6 +14,12 @@ int main() {
 
 	tree.afficher(tree.getArbre());
 
+	cout << "\n" << endl;
+
+	/*Node* n = tree.rechercher(3);
+	tree.supprimer(n);
+	
+	tree.afficher(tree.getArbre());*/
 
 	return 0;
 }
