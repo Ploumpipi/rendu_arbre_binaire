@@ -36,9 +36,14 @@ void supprNoeudArbre(arbre_binaire* pArbre, int val);
 noeud* plusGrand(noeud* elem);
 
 void liberer(noeud** p_racine);
-void nombreNoeud(arbre_binaire* pArbre);
-void affichageHauteur(arbre_binaire* pArbre);
+int nombreNoeud(noeud* racine);
+int nombreNoeudGauche(noeud* racine);
+int nombreNoeudDroit(noeud* racine);
+int calculHauteur(noeud* racine);
 
+void equilibrage(noeud* racine, arbre_binaire* pArbre);
+void rotationGauche(noeud* node, arbre_binaire* pArbre);
+void rotationDroite(noeud* node, arbre_binaire* pArbre);
 
 
 int main() {
@@ -65,8 +70,21 @@ int main() {
 
 	cout << "\n" << endl;
 
-	affichageHauteur(pArbre);
-	nombreNoeud(pArbre);
+	int gauche = nombreNoeudGauche(pArbre->racine);
+	cout << "gauche : " << gauche << endl;
+
+	int droit = nombreNoeudDroit(pArbre->racine);
+	cout << "droit : " << droit << endl;
+
+	equilibrage(pArbre->racine, pArbre);
+
+	parcoursPrefixe(pArbre->racine);
+
+	int gauche2 = nombreNoeudGauche(pArbre->racine);
+	cout << "gauche : " << gauche2 << endl;
+
+	int droit2 = nombreNoeudDroit(pArbre->racine);
+	cout << "droit : " << droit2 << endl;
 
 
 	//noeud *elem=supprNoeud(pArbre->racine, 1);
@@ -158,9 +176,6 @@ int ajoutNoeud(arbre_binaire* pArbre, int n_val)
 	elem->fgauche = NULL;
 	elem->n_donnee = n_val;
 
-	pArbre->hauteur = pArbre->hauteur++;
-	pArbre->nbNoeud = pArbre->nbNoeud++;
-
 	// On avance jusqu'à trouver une place
 	while (courant)
 	{
@@ -182,9 +197,28 @@ int ajoutNoeud(arbre_binaire* pArbre, int n_val)
 	return 1;
 }
 
-void nombreNoeud(arbre_binaire* pArbre)
+int nombreNoeud(noeud* racine)
 {
-	cout << "nombre de noeuds : " << pArbre->nbNoeud << endl;
+	if (racine == nullptr)
+		return 0;
+	else
+		return 1 + nombreNoeud(racine->fgauche) + nombreNoeud(racine->fdroite);
+}
+
+int nombreNoeudGauche(noeud* racine)
+{
+	if (racine == nullptr)
+		return 0;
+	else
+		return 1 + nombreNoeudGauche(racine->fgauche);
+}
+
+int nombreNoeudDroit(noeud* racine)
+{
+	if (racine == nullptr)
+		return 0;
+	else
+		return 1 + nombreNoeudDroit(racine->fdroite);
 }
 
 void liberer(noeud** p_racine) {
@@ -199,9 +233,77 @@ void liberer(noeud** p_racine) {
 	*p_racine = nullptr;
 }
 
-void affichageHauteur(arbre_binaire* pArbre)
+int calculHauteur(noeud* racine)
 {
-	cout << "hauteur : " << pArbre->hauteur << endl;
+	int hauteurDroite, hauteurGauche, hauteur;
+
+	//si l'arbre est vide on retourne -1
+	if (racine == nullptr)
+	{
+		hauteur = -1;
+	}
+	else
+	{
+		//calcul de la profondeur du sous arbre droit
+		hauteurDroite = calculHauteur(racine->fdroite);
+		//calcul de la profondeur du sous arbre gauche
+		hauteurGauche = calculHauteur(racine->fgauche);
+
+		hauteur = 1 + (hauteurGauche > hauteurDroite ? hauteurGauche : hauteurGauche);
+	}
+	return hauteur;
+}
+
+void equilibrage(noeud* racine, arbre_binaire* pArbre)
+{
+	bool isEquilibrer = false;
+	while (isEquilibrer == false) {
+		int nbNoeudGauche = nombreNoeudGauche(racine);
+		int nbNoeudDroit = nombreNoeudDroit(racine);
+
+		//Pour équilibrage droite - gauche
+		int equilibre = nbNoeudDroit - nbNoeudGauche;
+		if (equilibre >= -1 && equilibre <= 1) {
+			//l'arbre est équilibré
+			isEquilibrer = true;
+			cout << "l'arbre est equilibre (normalement)" << endl;
+			cout << "nombre de noeud a gauche : " << nbNoeudGauche << " et a droite : " << nbNoeudDroit << endl;
+		}
+		else {
+			if (equilibre < -1)
+				rotationDroite(racine, pArbre);
+			if (equilibre > 1)
+				rotationGauche(racine, pArbre);
+		}
+	}
+}
+
+void rotationGauche(noeud* node, arbre_binaire* pArbre)
+{
+	noeud* Y = node;
+	noeud* X = node->fdroite;
+	noeud* B = nullptr;
+
+	if (X != nullptr) {
+		B = X->fgauche;
+		pArbre->racine = X;
+		X->fgauche = Y;
+	}
+	Y->fdroite = B;
+}
+
+void rotationDroite(noeud* node, arbre_binaire* pArbre)
+{
+	noeud* Y = node;
+	noeud* X = node->fgauche;
+	noeud* B = nullptr;
+
+	if (X != nullptr) {
+		B = X->fdroite;
+		pArbre->racine = X;
+		X->fdroite = Y;
+	}
+	Y->fgauche = B;
 }
 
 noeud* supprNoeud(arbre_binaire* pArbre, noeud* courant, int n_val)
